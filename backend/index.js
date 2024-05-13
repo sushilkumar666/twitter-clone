@@ -19,7 +19,8 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin:"http://localhost:3000",
+    origin:["twitter-clone-phi-seven.vercel.app"],
+    methods:["POST", "GET", "DELETE", "PATCH", "UPDATE"],
     credentials:true
 }
 app.use(cors(corsOptions));
