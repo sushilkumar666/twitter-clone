@@ -19,8 +19,7 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin:["twitter-clone-phi-seven.vercel.app"],
-    methods:["POST", "GET", "DELETE", "PATCH", "UPDATE"],
+    origin:"http://localhost:3000",
     credentials:true
 }
 app.use(cors(corsOptions));
@@ -29,7 +28,7 @@ app.use(cors(corsOptions));
 app.use("/api/v1/user",userRoute);
 app.use("/api/v1/tweet", tweetRoute);
  
-
+app.use("/test", ()=>{console.log('test route')})
 app.listen(process.env.PORT,() => {
     console.log(`Server listen at port ${process.env.PORT}`);
 })
