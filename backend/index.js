@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import userRoute from "./routes/userRoute.js";
 import tweetRoute from "./routes/tweetRoute.js";
 import cors from "cors";
-import path from 'path'
+ 
 
 dotenv.config({
     path:".env"
@@ -19,10 +19,10 @@ app.use(express.urlencoded({
 }));
 app.use(express.json());
 app.use(cookieParser());
-const corsOptions = {
-    origin:"http://localhost:3000",
-    credentials:true
-}
+// const corsOptions = {
+//     origin:"http://localhost:3000",
+//     credentials:true
+// }
 app.use(cors());
 
 // api
