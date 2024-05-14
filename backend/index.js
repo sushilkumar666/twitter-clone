@@ -33,6 +33,13 @@ app.get("/test", (req, res) => res.json({ test: "success", success: true }));
 app.get("/", (req, res) => res.status(200).json({ success: true, message: "Backend configured successfully" }));
 app.get("/test2", (req, res) => res.status(200).json({ success: true, message: "Backend configured successfully" }));
 
+
+app.post("/postLogin", (req,res) => {
+    res.json({
+        success:true,
+        message:"post request successfull"
+    })
+})
 // Start the server
 app.listen(process.env.PORT, () => {
     console.log(`Server is listening at port ${process.env.PORT}`);
