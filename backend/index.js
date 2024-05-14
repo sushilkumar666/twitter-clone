@@ -23,16 +23,16 @@ const corsOptions = {
     origin:"http://localhost:3000",
     credentials:true
 }
-app.use(cors());
+app.use(cors(corsOptions));
 
 // api
 app.use("/api/v1/user",userRoute);
 app.use("/api/v1/tweet", tweetRoute);
  
-app.get("/test", (req,res)=>{res.json({
+app.get("/test", (req,res)=> res.json({
     test:"success",
     success:true
-})})
+}))
 
 app.get("/", (req, res) => res.status(200).json({success: true, message :" backend configured successfully" }))
 
