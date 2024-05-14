@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-export const USER_API_END_POINT = `http://localhost:8000/api/v1/user`;
-export const TWEET_API_END_POINT = `http://localhost:8000/api/v1/tweet`;
-=======
-export const USER_API_END_POINT = "http://localhost:8000/api/v1/user";
-export const TWEET_API_END_POINT = "http://localhost:8000/api/v1/tweet";
->>>>>>> 0e3af79802c5d74b137221f51209f04728e24531
+export const USER_API_END_POINT = "https://twitter-clone-green-ten.vercel.app/api/v1/user";
+export const TWEET_API_END_POINT = "https://twitter-clone-green-ten.vercel.app/api/v1/tweet";
 
 export const timeSince = (timestamp) => {
     let time = Date.parse(timestamp);
