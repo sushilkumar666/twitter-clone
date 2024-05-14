@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 // CORS Configuration
 const corsOptions = {
-    origin: ["https://twitter-clone-green-ten.vercel.app", "https://twitter-clone-frontend-iota.vercel.app"],
+    origin: [ "https://twitter-clone-frontend-iota.vercel.app", "http://localhost:3000"],
     credentials: true
 };
 app.use(cors(corsOptions));
