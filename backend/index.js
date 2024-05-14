@@ -34,7 +34,7 @@ app.get("/test", (req,res)=> res.json({
     success:true
 }))
 
-app.get("/", (req, res) => res.status(200).json({success: true, message :" backend configured successfully" }))
+app.get("/", (req, res) => res.status(200).json({success: true, message :" backend  configured successfully hahahaha" }))
 
 
 // app.get("/", (req, res) => {
