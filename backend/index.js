@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import userRoute from "./routes/userRoute.js";
 import tweetRoute from "./routes/tweetRoute.js";
 import cors from "cors";
+import path from 'path'
 
 dotenv.config({
     path:".env"
@@ -28,7 +29,17 @@ app.use(cors(corsOptions));
 app.use("/api/v1/user",userRoute);
 app.use("/api/v1/tweet", tweetRoute);
  
-app.use("/test", ()=>{console.log('test route')})
+app.get("/test", (req,res)=>{res.json({
+    test:"success",
+    success:true
+})})
+
+
+app.get("/", (req, res) => {
+    app.use(express.static(path.resolve(__dirname, "frontend/twitterclone" , "build")));
+    res.sendFile(path.resolve(__dirname, "frontend/twitterclone", "build", "index.html"));
+})
+
 app.listen(process.env.PORT,() => {
     console.log(`Server listen at port ${process.env.PORT}`);
 })
