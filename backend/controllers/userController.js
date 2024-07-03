@@ -2,123 +2,182 @@ import { User } from "../models/userSchema.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Register User
 export const Register = async (req, res) => {
-    const { name, username, email, password } = req.body;
-    if (!name || !username || !email || !password) {
-        return res.status(400).json({ message: "All fields are required.", success: false });
-    }
     try {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(409).json({ message: "User already exists.", success: false });
+        const { name, username, email, password } = req.body;
+        // basic validation
+        if (!name || !username || !email || !password) {
+            return res.status(401).json({
+                message: "All fields are required.",
+                success: false
+            })
+        }
+        const user = await User.findOne({ email });
+        if (user) {
+            return res.status(401).json({
+                message: "User already exist.",
+                success: false
+            })
         }
         const hashedPassword = await bcryptjs.hash(password, 16);
-        await User.create({ name, username, email, password: hashedPassword });
-        res.status(201).json({ message: "Account created successfully.", success: true });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
-    }
-};
 
-// Login User
-export const Login = async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ message: "All fields are required.", success: false });
+        await User.create({
+            name,
+            username,
+            email,
+            password: hashedPassword
+        });
+        return res.status(201).json({
+            message: "Account created successfully.",
+            success: true
+        })
+
+    } catch (error) {
+        console.log(error);
     }
+}
+export const Login = async (req, res) => {
     try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(401).json({
+                message: "All fields are required.",
+                success: false
+            })
+        };
         const user = await User.findOne({ email });
-        if (!user || !(await bcryptjs.compare(password, user.password))) {
-            return res.status(401).json({ message: "Incorrect email or password.", success: false });
+        console.log("user matched in database timeout");
+        console.log("just after user matchi n database timout");
+
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Incorrect email or password",
+                success: false
+            })
         }
-        const token = jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, { expiresIn: "1d" });
-        res.status(200).cookie("token", token, { httpOnly: true, maxAge: 86400000 }).json({
+        console.log("open beofore comparing passowrd");
+        const isMatch = await bcryptjs.compare(password, user.password);
+        console.log("password matched timeout");
+        if (!isMatch) {
+            return res.status(401).json({
+                message: "Incorect email or password",
+                success: false
+            });
+        }
+        const tokenData = {
+            userId: user._id
+        }
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
+        console.log("tokken generating timeout");
+        return res.status(201).cookie("token", token, { expiresIn: "1d", httpOnly: true }).json({
             message: `Welcome back ${user.name}`,
             user,
             success: true
-        });
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
+        console.log(error);
     }
-};
+}
+export const logout = (req, res) => {
+    return res.cookie("token", "", { expiresIn: new Date(Date.now()) }).json({
+        message: "user logged out successfully.",
+        success: true
+    })
+}
 
-// Logout User
-export const Logout = (req, res) => {
-    res.cookie("token", "", { expires: new Date(0) }).json({ message: "User logged out successfully.", success: true });
-};
-
-// Bookmark/Unbookmark Tweet
-export const Bookmark = async (req, res) => {
-    const { id: userId } = req.body;
-    const { id: tweetId } = req.params;
+export const bookmark = async (req, res) => {
     try {
-        const user = await User.findById(userId);
-        const updateAction = user.bookmarks.includes(tweetId) ? "$pull" : "$push";
-        await User.findByIdAndUpdate(userId, { [updateAction]: { bookmarks: tweetId } });
-        res.status(200).json({ message: updateAction === "$pull" ? "Removed from bookmarks." : "Saved to bookmarks." });
+        const loggedInUserId = req.body.id;
+        const tweetId = req.params.id;
+        const user = await User.findById(loggedInUserId);
+        if (user.bookmarks.includes(tweetId)) {
+            // remove
+            await User.findByIdAndUpdate(loggedInUserId, { $pull: { bookmarks: tweetId } });
+            return res.status(200).json({
+                message: "Removed from bookmarks."
+            });
+        } else {
+            // bookmark
+            await User.findByIdAndUpdate(loggedInUserId, { $push: { bookmarks: tweetId } });
+            return res.status(200).json({
+                message: "Saved to bookmarks."
+            });
+        }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
+        console.log(error);
     }
 };
-
-// Get User Profile
 export const getMyProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select("-password");
-        res.status(200).json({ user });
+        const id = req.params.id;
+        const user = await User.findById(id).select("-password");
+        return res.status(200).json({
+            user,
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
+        console.log(error);
     }
 };
 
-// Get Other Users
 export const getOtherUsers = async (req, res) => {
     try {
-        const users = await User.find({ _id: { $ne: req.params.id } }).select("-password");
-        res.status(200).json({ users });
+        const { id } = req.params;
+        const otherUsers = await User.find({ _id: { $ne: id } }).select("-password");
+        if (!otherUsers) {
+            return res.status(401).json({
+                message: "Currently do not have any users."
+            })
+        };
+        return res.status(200).json({
+            otherUsers
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
+        console.log(error);
     }
-};
+}
 
-// Follow User
-export const Follow = async (req, res) => {
-    const { id: loggedInUserId } = req.body;
-    const { id: userId } = req.params;
+export const follow = async (req, res) => {
     try {
-        const user = await User.findById(userId);
-        if (user.followers.includes(loggedInUserId)) {
-            return res.status(400).json({ message: `User already followed to ${user.name}` });
-        }
-        await user.updateOne({ $push: { followers: loggedInUserId } });
-        await User.findByIdAndUpdate(loggedInUserId, { $push: { following: userId } });
-        res.status(200).json({ message: `You followed ${user.name}`, success: true });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
-    }
-};
-
-// Unfollow User
-export const Unfollow = async (req, res) => {
-    const { id: loggedInUserId } = req.body;
-    const { id: userId } = req.params;
-    try {
-        const user = await User.findById(userId);
+        const loggedInUserId = req.body.id;
+        const userId = req.params.id;
+        const loggedInUser = await User.findById(loggedInUserId);//patel
+        const user = await User.findById(userId);//keshav
         if (!user.followers.includes(loggedInUserId)) {
-            return res.status(400).json({ message: "User has not followed yet." });
-        }
-        await user.updateOne({ $pull: { followers: loggedInUserId } });
-        await User.findByIdAndUpdate(loggedInUserId, { $pull: { following: userId } });
-        res.status(200).json({ message: `You unfollowed ${user.name}`, success: true });
+            await user.updateOne({ $push: { followers: loggedInUserId } });
+            await loggedInUser.updateOne({ $push: { following: userId } });
+        } else {
+            return res.status(400).json({
+                message: `User already followed to ${user.name}`
+            })
+        };
+        return res.status(200).json({
+            message: `${loggedInUser.name} just follow to ${user.name}`,
+            success: true
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error.", success: false });
+        console.log(error);
     }
-};
+}
+export const unfollow = async (req, res) => {
+    try {
+        const loggedInUserId = req.body.id;
+        const userId = req.params.id;
+        const loggedInUser = await User.findById(loggedInUserId);//patel
+        const user = await User.findById(userId);//keshav
+        if (loggedInUser.following.includes(userId)) {
+            await user.updateOne({ $pull: { followers: loggedInUserId } });
+            await loggedInUser.updateOne({ $pull: { following: userId } });
+        } else {
+            return res.status(400).json({
+                message: `User has not followed yet`
+            })
+        };
+        return res.status(200).json({
+            message: `${loggedInUser.name} unfollow to ${user.name}`,
+            success: true
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
