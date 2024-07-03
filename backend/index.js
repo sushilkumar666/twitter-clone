@@ -41,6 +41,6 @@ app.post("/postLogin", (req, res) => {
     })
 })
 // Start the server
-app.listen(process.env.PORT, () => {
-    console.log(`Server is listening at port ${process.env.PORT}`);
+app.listen(8000, () => {
+    console.log(`Server is listening at port 8000`);
 });

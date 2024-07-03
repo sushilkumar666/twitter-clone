@@ -68,7 +68,7 @@ export const Login = async (req, res) => {
         const tokenData = {
             userId: user._id
         }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, { expiresIn: "1d" });
+        const token = await jwt.sign(tokenData, twitterTokenSecret, { expiresIn: "1d" });
         console.log("tokken generating timeout");
         return res.status(201).cookie("token", token, { expiresIn: "1d", httpOnly: true }).json({
             message: `Welcome back ${user.name}`,
