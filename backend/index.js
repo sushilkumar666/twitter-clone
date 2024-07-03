@@ -7,28 +7,40 @@ import tweetRoute from "./routes/tweetRoute.js";
 import cors from "cors";
 
 dotenv.config({
-    path:".env"
-})
+    path: ".env"
+});
 databaseConnection();
-const app = express(); 
+const app = express();
 
-// middlewares
-app.use(express.urlencoded({
-    extended:true
-}));
+// Middlewares
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// CORS Configuration
 const corsOptions = {
-    origin:"http://localhost:3000",
-    credentials:true
-}
+    origin: [ "https://twitter-clone-frontend-iota.vercel.app", "http://localhost:3000"],
+    credentials: true
+};
 app.use(cors(corsOptions));
 
-// api
-app.use("/api/v1/user",userRoute);
+// API routes
+app.use("/api/v1/user", userRoute);
 app.use("/api/v1/tweet", tweetRoute);
- 
-app.use("/test", ()=>{console.log('test route')})
-app.listen(process.env.PORT,() => {
-    console.log(`Server listen at port ${process.env.PORT}`);
+
+// Test routes
+app.get("/test", (req, res) => res.json({ test: "success", success: true }));
+app.get("/", (req, res) => res.status(200).json({ success: true, message: "Backend configured successfully" }));
+app.get("/test2", (req, res) => res.status(200).json({ success: true, message: "Backend configured successfully" }));
+
+
+app.post("/postLogin", (req,res) => {
+    res.json({
+        success:true,
+        message:"post request successfull"
+    })
 })
+// Start the server
+app.listen(process.env.PORT, () => {
+    console.log(`Server is listening at port ${process.env.PORT}`);
+});
