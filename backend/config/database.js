@@ -11,7 +11,7 @@ const databaseConnection = async () => {
     // })
 
     try {
-        const connectionInstance = await mongoose.connect(`${process.env.MONGO_URI}`)
+        const connectionInstance = await mongoose.connect(`mongodb+srv://sushilssharma064:sushilssharma064@cluster0.y3mxeba.mongodb.net/twitterClone`)
         console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
     } catch (error) {
         console.log("MONGODB connection FAILED ", error);
