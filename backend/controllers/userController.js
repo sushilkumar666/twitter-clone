@@ -46,7 +46,10 @@ export const Login = async (req, res) => {
             })
         };
         const user = await User.findOne({ email });
-        console.log("user matched in database timeout")
+        console.log("user matched in database timeout");
+        console.log("just after user matchi n database timout");
+
+
         if (!user) {
             return res.status(401).json({
                 message: "Incorrect email or password",
