@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 // CORS Configuration
 const corsOptions = {
-    origin: [ "https://twitter-clone-frontend-iota.vercel.app", "http://localhost:3000"],
+    origin: ["https://twitter-clone-sushil.vercel.app", "http://localhost:3000"],
     credentials: true
 };
 app.use(cors(corsOptions));
@@ -34,10 +34,10 @@ app.get("/", (req, res) => res.status(200).json({ success: true, message: "Backe
 app.get("/test2", (req, res) => res.status(200).json({ success: true, message: "Backend configured successfully" }));
 
 
-app.post("/postLogin", (req,res) => {
+app.post("/postLogin", (req, res) => {
     res.json({
-        success:true,
-        message:"post request successfull"
+        success: true,
+        message: "post request successfull"
     })
 })
 // Start the server
