@@ -53,6 +53,7 @@ export const Login = async (req, res) => {
                 success: false
             })
         }
+        console.log("open beofore comparing passowrd");
         const isMatch = await bcryptjs.compare(password, user.password);
         console.log("password matched timeout");
         if (!isMatch) {
